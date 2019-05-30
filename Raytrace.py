@@ -100,18 +100,6 @@ pln_1 = Plane(np.array([0,0,3]),np.array([0,0,-1]),np.array([1,1,1]),1)
 sph_2 = Sphere(np.array([-1,1,2]),0.5,np.array([1,0,0]),2)
 SCENE = [sph_1,pln_1,sph_2]
 
-# res.push(new createCircle(0.3,0,2,0.4,[1,0,0])); 
-# res.push(new createCircle(0,-0.3,3,0.7,[0,1,0])); 
-
-# res.push(new createPlane(-1,0,0,-5,[0.5,0,0])); 
-# res.push(new createPlane(1,0,0,-5,[0,0.5,0])); 
-# res.push(new createPlane(0,0,1,-5,[0,0,0.7])); 
-# res.push(new createPlane(0,-1,0,-2,[0.4,0,0.4]));
-
-
-
-
-
 
 ##########################################################
 ## MAIN ALGHORITHM
