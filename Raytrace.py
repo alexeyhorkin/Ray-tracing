@@ -1,23 +1,20 @@
 from math import sqrt
 import numpy as np
 import matplotlib.pyplot as plt
-from PIL import Image
-
-
 ##########################################################
 ##           GLOGAL          PARAMETRS 
 ##########################################################
-STEP =0.1
-W = 100
-H = 100
-light_point = np.array([-0.5,-0.5,0])
+STEP =0.08
+W = 500
+H = 500
+light_point = np.array([-1,1,0])
 ##########################################################
 
 ##########################################################
 ##           SCREEN SETTINGS 
 ##########################################################
 SCREEN = np.zeros((H,W,3))
-W_space = 1.3
+W_space = 1.5
 H_space = float(H/W)*W_space
 arr_w = np.linspace(-W/2,W/2,W)
 arr_h = np.linspace(-H/2,H/2,H)
@@ -25,8 +22,8 @@ arr_h = np.linspace(-H/2,H/2,H)
 
 
 def Get_coord_space(i,j):
-	Z = 1
-	return np.array([j*H_space*2/H,i*W_space*2/W,Z])
+	Z = 0.75
+	return np.array([i*W_space/W,j*H_space/H,Z])
 
 def normalize(x):
 	x /= np.linalg.norm(x)
@@ -35,10 +32,7 @@ def normalize(x):
 
 class Plane( object ):
 	def __init__(self, point, normal, color,id_):
-		if abs(normal[0]**2+normal[1]**2+normal[2]**2-1)>=0.0001:
-			self.n = normalize(normal)
-		else:
-			self.n = normal
+		self.n = normal/np.linalg.norm(normal)
 		self.p = point
 		self.color = color
 		self.type = "Plane"
@@ -95,62 +89,55 @@ def INTERSECTION(ray,SCENE,depth):
 				return [True,ray_curr,obj.id]
 	return [False,False,False]
 
+def Get_intens(x):
+	if x >=0:
+		return x
+	else:
+		return 0
+
+sph_1 = Sphere(np.array([0,0,2]),0.5,np.array([0,0,1]),0)
+pln_1 = Plane(np.array([0,0,3]),np.array([0,0,-1]),np.array([1,1,1]),1)
+sph_2 = Sphere(np.array([-1,1,2]),0.5,np.array([1,0,0]),2)
+SCENE = [sph_1,pln_1,sph_2]
+
+# res.push(new createCircle(0.3,0,2,0.4,[1,0,0])); 
+# res.push(new createCircle(0,-0.3,3,0.7,[0,1,0])); 
+
+# res.push(new createPlane(-1,0,0,-5,[0.5,0,0])); 
+# res.push(new createPlane(1,0,0,-5,[0,0.5,0])); 
+# res.push(new createPlane(0,0,1,-5,[0,0,0.7])); 
+# res.push(new createPlane(0,-1,0,-2,[0.4,0,0.4]));
 
 
-sph_1 = Sphere(np.array([0,0,2]),1,np.array([1,0,0]),0)
-pln_1 = Plane(np.array([0,0,5]),np.array([0,0,1]),np.array([1,1,1]),1)
 
-SCENE = [sph_1,pln_1]
+
+
 
 ##########################################################
 ## MAIN ALGHORITHM
 ########################################################## 
 
-
 # loop for all pixels
-for i, x in enumerate(arr_h):
-	for j, y in enumerate(arr_w):
+for i, y in enumerate(arr_h):
+	for j, x in enumerate(arr_w):
 		direct =normalize(Get_coord_space(x,y))
-		ray = Ray(np.array([0,0,0]),direct)
-		flag,collision_point, index = INTERSECTION(ray,SCENE,120)
+		ray = Ray(direct,direct)
+		flag,collision_point, index = INTERSECTION(ray,SCENE,200)
 		if flag:  # first collision
 			ray_2 = Ray(collision_point,normalize(light_point-collision_point))
-			if INTERSECTION(ray_2,SCENE,120)[0] == False:
-				intensivity = abs((normalize(light_point-collision_point)).dot(SCENE[index].Normal(collision_point)))
+			if INTERSECTION(ray_2,SCENE,200)[0] == False:
+				intensivity = Get_intens(normalize(light_point-collision_point).dot(SCENE[index].Normal(collision_point)))
 			else:
-				intensivity =0.1
-			SCREEN[i][j][0] =  SCENE[index].color[0]*intensivity 
-			SCREEN[i][j][1]	= SCENE[index].color[1]*intensivity
-			SCREEN[i][j][2] = SCENE[index].color[2]*intensivity
+				intensivity =0.01
+			SCREEN[H-i-1][j][0] = SCENE[index].color[0]*intensivity 
+			SCREEN[H-i-1][j][1]	= SCENE[index].color[1]*intensivity
+			SCREEN[H-i-1][j][2] = SCENE[index].color[2]*intensivity
 
 	# print progress
 	print(float(i*W+j)/(W*H)*100,"%")					
-
 
 plt.imshow(SCREEN)
 plt.show()
 
 
 
-
-
-
-
-
-
-
-
-
-		# cross = False
-		# for q in range(102):
-		# 	if(cross):
-		# 		break
-		# 	ray_curr = ray.curr_point 
-		# 	ray_next = ray.Next().curr_point
-		# 	for obj in SCENE:
-		# 		if obj.intersection(ray_curr,ray_next):
-		# 			SCREEN[i][j][0] = obj.color[0] 
-		# 			SCREEN[i][j][1]	= obj.color[1]
-		# 			SCREEN[i][j][2] = obj.color[2]
-		# 			cross = True
-		# 			break
